@@ -20,6 +20,7 @@ So I wrote up a Python script that you can export for yourself. All you have to 
 3. Click the download icon on the top right of the graph
 4. Download and open the google-trends-analysis.ipynb file in this repo
 5. Insert the name of the file and hit run 
+
 (Optional) Update the titles of the graphs if you will be presenting this
 
 It may be worth having some familiarity with Python, just so you have the tools. But this is very easy as all you have to do is change the name of the file and everything populates for you from Quarterly, Yearly, and Monthly breakdowns.
