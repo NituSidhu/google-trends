@@ -30,9 +30,11 @@ Detect which months prospects are searching for services like yours:
 ![monthly breakdown](https://i.imgur.com/yTdmxam.png)
 
 Help forecast the year and get quarterly trends:
+
 ![quarter breakdown](https://i.imgur.com/xLPXOph.png)
 
 See how your topic has been performing on a year-by-year basis:
+
 ![yearly breakdown](https://i.imgur.com/cOfsKjP.png)
 
 If you have any requests, please reach me at yaguneetsidhu@gmail.com.
