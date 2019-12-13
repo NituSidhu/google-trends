@@ -27,12 +27,12 @@ It may be worth having some familiarity with Python, just so you have the tools.
 
 ## What You'll Get
 Detect which months prospects are searching for services like yours:
-![monthly breakdown](https://imgur.com/yTdmxam)
+![monthly breakdown](https://i.imgur.com/yTdmxam.png)
 
 Help forecast the year and get quarterly trends:
-![quarter breakdown](https://imgur.com/xLPXOph)
+![quarter breakdown](https://i.imgur.com/xLPXOph.png)
 
 See how your topic has been performing on a year-by-year basis:
-![yearly breakdown](https://imgur.com/cOfsKjP)
+![yearly breakdown](https://i.imgur.com/cOfsKjP.png)
 
 If you have any requests, please reach me at yaguneetsidhu@gmail.com.
