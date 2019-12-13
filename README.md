@@ -26,13 +26,16 @@ So I wrote up a Python script that you can export for yourself. All you have to 
 It may be worth having some familiarity with Python, just so you have the tools. But this is very easy as all you have to do is change the name of the file and everything populates for you from Quarterly, Yearly, and Monthly breakdowns.
 
 ## What You'll Get
+#### Monthly Breakdown
 Detect which months prospects are searching for services like yours:
 ![monthly breakdown](https://i.imgur.com/yTdmxam.png)
 
+#### Quarterly Breakdown
 Help forecast the year and get quarterly trends:
 
 ![quarter breakdown](https://i.imgur.com/xLPXOph.png)
 
+#### Yearly Breakdown
 See how your topic has been performing on a year-by-year basis:
 
 ![yearly breakdown](https://i.imgur.com/cOfsKjP.png)
