@@ -20,8 +20,7 @@ function App() {
     setError(null);
     
     try {
-      const data = await parseCSVFile(file);
-      const keyword = file.name.replace('.csv', '').replace(/[_-]/g, ' ');
+      const { data, keyword } = await parseCSVFile(file);
       const result = analyzeSeasonality(data, keyword);
       setAnalysis(result);
     } catch (err) {
@@ -95,7 +94,7 @@ function App() {
                       </li>
                       <li className="flex items-start space-x-2">
                         <span className="text-error-500 mt-1">•</span>
-                        <span>No clear monthly or quarterly breakdowns</span>
+                        <span>No clear quarterly business cycle analysis</span>
                       </li>
                       <li className="flex items-start space-x-2">
                         <span className="text-error-500 mt-1">•</span>
@@ -103,7 +102,7 @@ function App() {
                       </li>
                       <li className="flex items-start space-x-2">
                         <span className="text-error-500 mt-1">•</span>
-                        <span>No actionable insights for campaign planning</span>
+                        <span>No actionable business insights for strategic planning</span>
                       </li>
                     </ul>
                   </div>
@@ -112,19 +111,19 @@ function App() {
                     <ul className="space-y-2 text-gray-600">
                       <li className="flex items-start space-x-2">
                         <span className="text-success-500 mt-1">•</span>
-                        <span>Clear quarterly seasonality patterns</span>
+                        <span>Quarterly business cycle analysis with strategic insights</span>
                       </li>
                       <li className="flex items-start space-x-2">
                         <span className="text-success-500 mt-1">•</span>
-                        <span>Monthly seasonality analysis</span>
+                        <span>Monthly seasonality patterns for campaign timing</span>
                       </li>
                       <li className="flex items-start space-x-2">
                         <span className="text-success-500 mt-1">•</span>
-                        <span>Year-over-year trend analysis</span>
+                        <span>Year-over-year trend analysis for market insights</span>
                       </li>
                       <li className="flex items-start space-x-2">
                         <span className="text-success-500 mt-1">•</span>
-                        <span>Actionable marketing recommendations</span>
+                        <span>Actionable marketing recommendations and budget allocation guidance</span>
                       </li>
                     </ul>
                   </div>

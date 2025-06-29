@@ -9,7 +9,7 @@ const MONTH_NAMES = [
 
 const QUARTER_NAMES = ['Q1', 'Q2', 'Q3', 'Q4'];
 
-export const parseCSVFile = (file: File): Promise<TrendsDataPoint[]> => {
+export const parseCSVFile = (file: File): Promise<{ data: TrendsDataPoint[], keyword: string }> => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: false, // Parse without assuming header structure
@@ -21,6 +21,9 @@ export const parseCSVFile = (file: File): Promise<TrendsDataPoint[]> => {
           if (rows.length === 0) {
             throw new Error('CSV file is empty');
           }
+
+          // Extract keyword from CSV content
+          const keyword = extractKeywordFromFile(file, rows);
 
           // Find the header row by looking for date-related keywords
           let headerRowIndex = -1;
@@ -141,7 +144,10 @@ export const parseCSVFile = (file: File): Promise<TrendsDataPoint[]> => {
             throw new Error('No valid data points found in the CSV file. Please check the file format.');
           }
 
-          resolve(processedData.sort((a, b) => a.date.localeCompare(b.date)));
+          resolve({ 
+            data: processedData.sort((a, b) => a.date.localeCompare(b.date)),
+            keyword
+          });
         } catch (error) {
           reject(error);
         }
@@ -281,8 +287,8 @@ export const analyzeSeasonality = (data: TrendsDataPoint[], keyword: string): An
     }
   });
 
-  // Generate insights
-  const insights = generateInsights(monthlyData, quarterlyData, yearlyData);
+  // Generate insights with business context
+  const insights = generateBusinessInsights(monthlyData, quarterlyData, yearlyData);
 
   return {
     keyword,
@@ -300,49 +306,67 @@ export const analyzeSeasonality = (data: TrendsDataPoint[], keyword: string): An
   };
 };
 
-const generateInsights = (monthly: MonthlyData[], quarterly: QuarterlyData[], yearly: YearlyData[]): string[] => {
+const generateBusinessInsights = (monthly: MonthlyData[], quarterly: QuarterlyData[], yearly: YearlyData[]): string[] => {
   const insights: string[] = [];
 
-  // Peak month insight
-  const peakMonth = monthly.reduce((max, month) => 
-    month.averageValue > max.averageValue ? month : max
-  );
-  insights.push(`Peak search activity occurs in ${peakMonth.month} with ${peakMonth.averageValue}% of maximum interest.`);
-
-  // Low month insight
-  const lowMonth = monthly.reduce((min, month) => 
-    month.averageValue < min.averageValue ? month : min
-  );
-  insights.push(`Lowest search activity is in ${lowMonth.month} with ${lowMonth.averageValue}% of maximum interest.`);
-
-  // Seasonal pattern insight
-  const seasonalVariation = (peakMonth.averageValue - lowMonth.averageValue) / lowMonth.averageValue * 100;
-  if (seasonalVariation > 50) {
-    insights.push(`Strong seasonal pattern detected with ${Math.round(seasonalVariation)}% variation between peak and low months.`);
-  } else if (seasonalVariation > 25) {
-    insights.push(`Moderate seasonal pattern with ${Math.round(seasonalVariation)}% variation between peak and low months.`);
-  } else {
-    insights.push(`Relatively stable search volume throughout the year with ${Math.round(seasonalVariation)}% variation.`);
-  }
-
-  // Peak quarter insight
+  // Peak quarter business insight
   const peakQuarter = quarterly.reduce((max, quarter) => 
     quarter.averageValue > max.averageValue ? quarter : max
   );
-  insights.push(`${peakQuarter.quarter} shows the highest quarterly activity with ${peakQuarter.percentage}% of total searches.`);
+  
+  const quarterBusinessContext = {
+    'Q1': 'New Year planning and fresh start initiatives drive search behavior',
+    'Q2': 'Spring growth and mid-year planning activities peak during this period',
+    'Q3': 'Back-to-school season and fall preparation create increased demand',
+    'Q4': 'Holiday shopping and year-end business activities dominate search patterns'
+  };
 
-  // Yearly trend insight
+  insights.push(`${peakQuarter.quarter} dominates with ${peakQuarter.percentage}% of searches. ${quarterBusinessContext[peakQuarter.quarter as keyof typeof quarterBusinessContext]}.`);
+
+  // Peak month insight with business context
+  const peakMonth = monthly.reduce((max, month) => 
+    month.averageValue > max.averageValue ? month : max
+  );
+  insights.push(`Peak search activity occurs in ${peakMonth.month} (${peakMonth.averageValue}% interest) - ideal for maximum marketing investment.`);
+
+  // Seasonal variation business impact
+  const lowMonth = monthly.reduce((min, month) => 
+    month.averageValue < min.averageValue ? month : min
+  );
+  const seasonalVariation = (peakMonth.averageValue - lowMonth.averageValue) / lowMonth.averageValue * 100;
+  
+  if (seasonalVariation > 50) {
+    insights.push(`High seasonality (${Math.round(seasonalVariation)}% variation) requires significant budget reallocation and inventory planning.`);
+  } else if (seasonalVariation > 25) {
+    insights.push(`Moderate seasonality (${Math.round(seasonalVariation)}% variation) allows for predictable quarterly budget adjustments.`);
+  } else {
+    insights.push(`Low seasonality (${Math.round(seasonalVariation)}% variation) enables consistent year-round marketing strategies.`);
+  }
+
+  // Business cycle insight
+  const q4Data = quarterly.find(q => q.quarter === 'Q4');
+  const q1Data = quarterly.find(q => q.quarter === 'Q1');
+  
+  if (q4Data && q1Data) {
+    if (q4Data.averageValue > q1Data.averageValue * 1.2) {
+      insights.push('Strong Q4 performance suggests holiday-driven demand - prioritize Q4 inventory and marketing spend.');
+    } else if (q1Data.averageValue > q4Data.averageValue * 1.2) {
+      insights.push('Q1 surge indicates New Year resolution behavior - capitalize with January campaigns.');
+    }
+  }
+
+  // Yearly trend business insight
   if (yearly.length > 1) {
     const recentTrend = yearly.slice(-3); // Last 3 years
     const upTrends = recentTrend.filter(y => y.trend === 'up').length;
     const downTrends = recentTrend.filter(y => y.trend === 'down').length;
     
     if (upTrends > downTrends) {
-      insights.push(`Recent years show an upward trend in search interest.`);
+      insights.push('Growing market interest over recent years suggests expanding opportunity and increased competition.');
     } else if (downTrends > upTrends) {
-      insights.push(`Recent years show a declining trend in search interest.`);
+      insights.push('Declining search interest may indicate market saturation or shifting consumer behavior - consider pivoting strategies.');
     } else {
-      insights.push(`Search interest has remained relatively stable in recent years.`);
+      insights.push('Stable long-term interest provides predictable demand for consistent business planning.');
     }
   }
 
