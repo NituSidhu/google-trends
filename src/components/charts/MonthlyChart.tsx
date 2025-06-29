@@ -21,7 +21,7 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({ data, keyword }) => 
   const yAxisMin = Math.max(0, minValue - padding);
   const yAxisMax = maxValue + padding;
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

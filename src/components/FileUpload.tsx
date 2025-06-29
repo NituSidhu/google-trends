@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Upload, FileText, AlertCircle, ExternalLink, MousePointer, Download as DownloadIcon, Search, Calendar, Globe, ChevronDown, ChevronUp } from 'lucide-react';
+import { Upload, FileText, AlertCircle, ExternalLink, Download as DownloadIcon, Search, Calendar, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
