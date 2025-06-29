@@ -13,6 +13,14 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({ data, keyword }) => 
     displayMonth: item.month.substring(0, 3) // Show abbreviated month names
   }));
 
+  // Calculate Y-axis domain with padding
+  const values = data.map(d => d.averageValue);
+  const minValue = Math.min(...values);
+  const maxValue = Math.max(...values);
+  const padding = (maxValue - minValue) * 0.1; // 10% padding
+  const yAxisMin = Math.max(0, minValue - padding);
+  const yAxisMax = maxValue + padding;
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -55,6 +63,8 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({ data, keyword }) => 
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              domain={[yAxisMin, yAxisMax]}
+              label={{ value: 'Average Interest (%)', angle: -90, position: 'insideLeft' }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Line 
