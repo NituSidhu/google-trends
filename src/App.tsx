@@ -3,7 +3,6 @@ import { Header } from './components/Header';
 import { FileUpload } from './components/FileUpload';
 import { QuarterlySeasonalityChart } from './components/charts/QuarterlySeasonalityChart';
 import { MonthlyChart } from './components/charts/MonthlyChart';
-import { QuarterlyChart } from './components/charts/QuarterlyChart';
 import { YearlyChart } from './components/charts/YearlyChart';
 import { InsightsPanel } from './components/InsightsPanel';
 import { parseCSVFile, analyzeSeasonality } from './utils/dataProcessor';
@@ -176,17 +175,13 @@ function App() {
                 data={analysis.seasonality.monthly} 
                 keyword={analysis.keyword} 
               />
-              <QuarterlyChart 
-                data={analysis.seasonality.quarterly} 
+              
+              {/* Yearly Chart */}
+              <YearlyChart 
+                data={analysis.seasonality.yearly} 
                 keyword={analysis.keyword} 
               />
             </div>
-
-            {/* Yearly Chart - Full Width */}
-            <YearlyChart 
-              data={analysis.seasonality.yearly} 
-              keyword={analysis.keyword} 
-            />
           </div>
         )}
       </main>
