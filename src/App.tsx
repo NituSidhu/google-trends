@@ -1,18 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { FileUpload } from './components/FileUpload';
+import { OpenAISettings } from './components/OpenAISettings';
 import { QuarterlySeasonalityChart } from './components/charts/QuarterlySeasonalityChart';
 import { MonthlyChart } from './components/charts/MonthlyChart';
 import { YearlyChart } from './components/charts/YearlyChart';
 import { InsightsPanel } from './components/InsightsPanel';
 import { parseCSVFile, analyzeSeasonality } from './utils/dataProcessor';
+import { OpenAIService } from './utils/openaiService';
 import { AnalysisResult } from './types';
-import { AlertCircle, Download, RefreshCw } from 'lucide-react';
+import { AlertCircle, Download, RefreshCw, Sparkles } from 'lucide-react';
 
 function App() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [openaiApiKey, setOpenaiApiKey] = useState('');
+  const [aiInsightsEnabled, setAiInsightsEnabled] = useState(false);
+  const [isGeneratingAIInsights, setIsGeneratingAIInsights] = useState(false);
+  const [openaiService] = useState(new OpenAIService());
+
+  // Load API key from localStorage on mount
+  useEffect(() => {
+    const savedApiKey = localStorage.getItem('openai-api-key');
+    if (savedApiKey) {
+      setOpenaiApiKey(savedApiKey);
+      openaiService.updateApiKey(savedApiKey);
+    }
+  }, [openaiService]);
+
+  // Save API key to localStorage when it changes
+  useEffect(() => {
+    if (openaiApiKey) {
+      localStorage.setItem('openai-api-key', openaiApiKey);
+      openaiService.updateApiKey(openaiApiKey);
+    } else {
+      localStorage.removeItem('openai-api-key');
+    }
+  }, [openaiApiKey, openaiService]);
 
   const handleFileSelect = async (file: File) => {
     setIsProcessing(true);
@@ -20,7 +45,30 @@ function App() {
     
     try {
       const { data, keyword, country } = await parseCSVFile(file);
-      const result = analyzeSeasonality(data, keyword, country);
+      let result = analyzeSeasonality(data, keyword, country);
+      
+      // Generate AI insights if enabled
+      if (aiInsightsEnabled && openaiService.isConfigured()) {
+        setIsGeneratingAIInsights(true);
+        try {
+          const aiInsights = await openaiService.generateEnhancedInsights(result);
+          result = {
+            ...result,
+            insights: aiInsights,
+            hasAIInsights: true
+          };
+        } catch (aiError) {
+          console.error('AI insights generation failed:', aiError);
+          // Continue with regular insights if AI fails
+          result = {
+            ...result,
+            hasAIInsights: false
+          };
+        } finally {
+          setIsGeneratingAIInsights(false);
+        }
+      }
+      
       setAnalysis(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while processing the file');
@@ -42,6 +90,7 @@ function App() {
       keyword: analysis.keyword,
       dateRange: analysis.dateRange,
       insights: analysis.insights,
+      hasAIInsights: analysis.hasAIInsights || false,
       monthlyData: analysis.seasonality.monthly,
       quarterlyData: analysis.seasonality.quarterly,
       yearlyData: analysis.seasonality.yearly
@@ -58,6 +107,16 @@ function App() {
     URL.revokeObjectURL(url);
   };
 
+  const handleApiKeyChange = (key: string) => {
+    setOpenaiApiKey(key);
+  };
+
+  const handleAIToggle = (enabled: boolean) => {
+    setAiInsightsEnabled(enabled);
+  };
+
+  const isValidApiKey = openaiApiKey.startsWith('sk-') && openaiApiKey.length > 20;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -65,7 +124,27 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {!analysis ? (
           <div className="space-y-8">
+            {/* OpenAI Settings */}
+            <OpenAISettings
+              apiKey={openaiApiKey}
+              onApiKeyChange={handleApiKeyChange}
+              isEnabled={aiInsightsEnabled}
+              onToggle={handleAIToggle}
+            />
+
             <FileUpload onFileSelect={handleFileSelect} isProcessing={isProcessing} />
+            
+            {isGeneratingAIInsights && (
+              <div className="max-w-2xl mx-auto p-4 bg-primary-50 border border-primary-200 rounded-lg">
+                <div className="flex items-center space-x-2">
+                  <Sparkles className="h-5 w-5 text-primary-600 animate-pulse" />
+                  <div>
+                    <p className="text-primary-800 font-medium">Generating AI Insights</p>
+                    <p className="text-primary-700 text-sm mt-1">Creating personalized recommendations...</p>
+                  </div>
+                </div>
+              </div>
+            )}
             
             {error && (
               <div className="max-w-2xl mx-auto p-4 bg-error-50 border border-error-200 rounded-lg">
@@ -124,6 +203,12 @@ function App() {
                         <span className="text-success-500 mt-1">•</span>
                         <span>Actionable marketing recommendations and budget allocation guidance</span>
                       </li>
+                      {isValidApiKey && (
+                        <li className="flex items-start space-x-2">
+                          <Sparkles className="h-4 w-4 text-primary-500 mt-1" />
+                          <span className="text-primary-600 font-medium">AI-powered personalized insights and strategic recommendations</span>
+                        </li>
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -135,9 +220,17 @@ function App() {
             {/* Header with actions */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Analysis Results for "{analysis.keyword}"
-                </h2>
+                <div className="flex items-center space-x-2">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    Analysis Results for "{analysis.keyword}"
+                  </h2>
+                  {analysis.hasAIInsights && (
+                    <div className="flex items-center space-x-1 px-2 py-1 bg-primary-100 text-primary-800 rounded-full text-xs font-medium">
+                      <Sparkles className="h-3 w-3" />
+                      <span>AI Enhanced</span>
+                    </div>
+                  )}
+                </div>
                 <p className="text-gray-600 mt-1">
                   {analysis.totalDataPoints} data points analyzed
                 </p>

@@ -309,7 +309,7 @@ export const analyzeSeasonality = (data: TrendsDataPoint[], keyword: string, cou
     }
   });
 
-  // Generate insights with business context
+  // Generate default business insights (will be replaced by AI if enabled)
   const insights = generateBusinessInsights(monthlyData, quarterlyData, yearlyData);
 
   return {
@@ -324,7 +324,8 @@ export const analyzeSeasonality = (data: TrendsDataPoint[], keyword: string, cou
       quarterly: quarterlyData.sort((a, b) => a.quarterNumber - b.quarterNumber),
       yearly: yearlyData
     },
-    insights
+    insights,
+    hasAIInsights: false
   };
 };
 
@@ -339,7 +340,7 @@ const generateBusinessInsights = (monthly: MonthlyData[], quarterly: QuarterlyDa
   const quarterBusinessContext = {
     'Q1': 'New Year planning and fresh start initiatives drive search behavior',
     'Q2': 'Spring growth and mid-year planning activities peak during this period',
-    'Q3': 'Back-to-school season and fall preparation create increased demand',
+    'Q3': 'Summer activities and fall preparation create increased demand',
     'Q4': 'Holiday shopping and year-end business activities dominate search patterns'
   };
 
