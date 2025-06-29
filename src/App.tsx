@@ -169,19 +169,17 @@ function App() {
               keyword={analysis.keyword} 
             />
 
-            {/* Charts Grid */}
-            <div className="grid lg:grid-cols-2 gap-8">
-              <MonthlyChart 
-                data={analysis.seasonality.monthly} 
-                keyword={analysis.keyword} 
-              />
-              
-              {/* Yearly Chart */}
-              <YearlyChart 
-                data={analysis.seasonality.yearly} 
-                keyword={analysis.keyword} 
-              />
-            </div>
+            {/* Monthly Chart - Full Width */}
+            <MonthlyChart 
+              data={analysis.seasonality.monthly} 
+              keyword={analysis.keyword} 
+            />
+            
+            {/* Yearly Chart - Full Width */}
+            <YearlyChart 
+              data={analysis.seasonality.yearly} 
+              keyword={analysis.keyword} 
+            />
           </div>
         )}
       </main>
