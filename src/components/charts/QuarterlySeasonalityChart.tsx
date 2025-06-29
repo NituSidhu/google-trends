@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Calendar, TrendingUp, Briefcase, DollarSign } from 'lucide-react';
 import { QuarterlyData } from '../../types';
 
@@ -105,7 +105,7 @@ export const QuarterlySeasonalityChart: React.FC<QuarterlySeasonalityChartProps>
       
       <div className="h-80 mb-6">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis 
               dataKey="quarter" 
@@ -122,13 +122,15 @@ export const QuarterlySeasonalityChart: React.FC<QuarterlySeasonalityChartProps>
               label={{ value: 'Average Interest (%)', angle: -90, position: 'insideLeft' }}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Bar 
+            <Line 
+              type="monotone"
               dataKey="averageValue" 
-              fill="#3b82f6"
-              radius={[6, 6, 0, 0]}
-              className="hover:opacity-80 transition-opacity"
+              stroke="#3b82f6"
+              strokeWidth={4}
+              dot={{ fill: '#3b82f6', strokeWidth: 2, r: 6 }}
+              activeDot={{ r: 8, stroke: '#3b82f6', strokeWidth: 2 }}
             />
-          </BarChart>
+          </LineChart>
         </ResponsiveContainer>
       </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { MonthlyData } from '../../types';
 
 interface MonthlyChartProps {
@@ -42,7 +42,7 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({ data, keyword }) => 
       
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis 
               dataKey="displayMonth" 
@@ -57,13 +57,15 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({ data, keyword }) => 
               axisLine={false}
             />
             <Tooltip content={<CustomTooltip />} />
-            <Bar 
+            <Line 
+              type="monotone"
               dataKey="averageValue" 
-              fill="#3b82f6"
-              radius={[4, 4, 0, 0]}
-              className="hover:opacity-80 transition-opacity"
+              stroke="#3b82f6"
+              strokeWidth={3}
+              dot={{ fill: '#3b82f6', strokeWidth: 2, r: 5 }}
+              activeDot={{ r: 7, stroke: '#3b82f6', strokeWidth: 2 }}
             />
-          </BarChart>
+          </LineChart>
         </ResponsiveContainer>
       </div>
 
