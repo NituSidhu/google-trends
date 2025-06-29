@@ -12,75 +12,133 @@ const QUARTER_NAMES = ['Q1', 'Q2', 'Q3', 'Q4'];
 export const parseCSVFile = (file: File): Promise<TrendsDataPoint[]> => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
-      header: true,
+      header: false, // Parse without assuming header structure
       skipEmptyLines: true,
       complete: (results) => {
         try {
-          const data = results.data as any[];
+          const rows = results.data as string[][];
           
-          // Skip the first few rows that contain metadata
-          const dataStartIndex = data.findIndex(row => 
-            Object.keys(row).some(key => key.toLowerCase().includes('date') || key.toLowerCase().includes('week'))
-          );
-          
-          if (dataStartIndex === -1) {
-            throw new Error('Could not find data section in CSV file');
+          if (rows.length === 0) {
+            throw new Error('CSV file is empty');
           }
 
-          const relevantData = data.slice(dataStartIndex);
+          // Find the header row by looking for date-related keywords
+          let headerRowIndex = -1;
+          let headerRow: string[] = [];
+          
+          for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const hasDateColumn = row.some(cell => {
+              const cellLower = cell.toLowerCase().trim();
+              return cellLower.includes('week') || 
+                     cellLower.includes('month') || 
+                     cellLower.includes('date') ||
+                     cellLower === 'day';
+            });
+            
+            if (hasDateColumn && row.length >= 2) {
+              headerRowIndex = i;
+              headerRow = row;
+              break;
+            }
+          }
+
+          if (headerRowIndex === -1) {
+            throw new Error('Could not find header row with date column in CSV file');
+          }
+
+          // Find date and value column indices
+          const dateColumnIndex = headerRow.findIndex(header => {
+            const headerLower = header.toLowerCase().trim();
+            return headerLower.includes('week') || 
+                   headerLower.includes('month') || 
+                   headerLower.includes('date') ||
+                   headerLower === 'day';
+          });
+
+          const valueColumnIndex = headerRow.findIndex((header, index) => {
+            if (index === dateColumnIndex) return false;
+            const headerLower = header.toLowerCase().trim();
+            return !headerLower.includes('week') && 
+                   !headerLower.includes('month') && 
+                   !headerLower.includes('date') &&
+                   headerLower !== 'day' &&
+                   header.trim() !== '';
+          });
+
+          if (dateColumnIndex === -1) {
+            throw new Error('Could not find date column in CSV file');
+          }
+
+          if (valueColumnIndex === -1) {
+            throw new Error('Could not find value column in CSV file');
+          }
+
+          // Process data rows
+          const dataRows = rows.slice(headerRowIndex + 1);
           const processedData: TrendsDataPoint[] = [];
 
-          relevantData.forEach((row, index) => {
-            const keys = Object.keys(row);
-            const dateKey = keys.find(key => 
-              key.toLowerCase().includes('date') || 
-              key.toLowerCase().includes('week') ||
-              key.toLowerCase().includes('month')
-            );
-            const valueKey = keys.find(key => 
-              key !== dateKey && 
-              !key.toLowerCase().includes('date') && 
-              !key.toLowerCase().includes('week') &&
-              row[key] !== '' &&
-              !isNaN(Number(row[key]))
-            );
+          dataRows.forEach((row, index) => {
+            if (row.length <= Math.max(dateColumnIndex, valueColumnIndex)) {
+              return; // Skip rows that don't have enough columns
+            }
 
-            if (dateKey && valueKey && row[dateKey] && row[valueKey] !== '') {
-              try {
-                let date: Date;
-                const dateStr = row[dateKey].trim();
-                
-                // Handle different date formats
-                if (dateStr.includes('-')) {
-                  // Format: 2023-01-01 or 2023-01-01 - 2023-01-07
-                  const datePart = dateStr.split(' - ')[0];
+            const dateStr = row[dateColumnIndex]?.trim();
+            const valueStr = row[valueColumnIndex]?.trim();
+
+            if (!dateStr || !valueStr || valueStr === '') {
+              return; // Skip empty rows
+            }
+
+            try {
+              let date: Date;
+              
+              // Handle different date formats
+              if (dateStr.includes('-')) {
+                // Format: 2023-01-01 or 2023-01-01 - 2023-01-07
+                const datePart = dateStr.split(' - ')[0];
+                if (datePart.match(/^\d{4}-\d{2}-\d{2}$/)) {
                   date = parse(datePart, 'yyyy-MM-dd', new Date());
                 } else {
-                  // Try other common formats
-                  date = new Date(dateStr);
+                  date = new Date(datePart);
                 }
-
-                if (isNaN(date.getTime())) {
-                  return; // Skip invalid dates
-                }
-
-                const value = parseInt(row[valueKey]) || 0;
-                
-                processedData.push({
-                  date: format(date, 'yyyy-MM-dd'),
-                  value,
-                  month: getMonth(date) + 1, // getMonth returns 0-11, we want 1-12
-                  quarter: getQuarter(date),
-                  year: getYear(date)
-                });
-              } catch (error) {
-                console.warn(`Skipping row ${index} due to date parsing error:`, error);
+              } else if (dateStr.includes('/')) {
+                // Try MM/dd/yyyy or dd/MM/yyyy formats
+                date = new Date(dateStr);
+              } else {
+                // Try other formats
+                date = new Date(dateStr);
               }
+
+              if (isNaN(date.getTime())) {
+                console.warn(`Skipping row ${index + headerRowIndex + 1} due to invalid date: ${dateStr}`);
+                return;
+              }
+
+              // Parse value - handle both integer and percentage formats
+              let value = 0;
+              if (valueStr.includes('%')) {
+                value = parseFloat(valueStr.replace('%', '')) || 0;
+              } else if (valueStr === '<1') {
+                value = 0.5; // Treat '<1' as 0.5
+              } else {
+                value = parseFloat(valueStr) || 0;
+              }
+              
+              processedData.push({
+                date: format(date, 'yyyy-MM-dd'),
+                value,
+                month: getMonth(date) + 1, // getMonth returns 0-11, we want 1-12
+                quarter: getQuarter(date),
+                year: getYear(date)
+              });
+            } catch (error) {
+              console.warn(`Skipping row ${index + headerRowIndex + 1} due to parsing error:`, error);
             }
           });
 
           if (processedData.length === 0) {
-            throw new Error('No valid data points found in the CSV file');
+            throw new Error('No valid data points found in the CSV file. Please check the file format.');
           }
 
           resolve(processedData.sort((a, b) => a.date.localeCompare(b.date)));
