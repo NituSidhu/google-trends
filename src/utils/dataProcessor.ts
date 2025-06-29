@@ -153,6 +153,37 @@ export const parseCSVFile = (file: File): Promise<TrendsDataPoint[]> => {
   });
 };
 
+// Extract keyword from CSV file content or filename
+const extractKeywordFromFile = (file: File, rows: string[][]): string => {
+  // First, try to extract from CSV content (look for keyword in early rows)
+  for (let i = 0; i < Math.min(5, rows.length); i++) {
+    const row = rows[i];
+    for (const cell of row) {
+      const cellStr = cell.trim();
+      // Look for patterns like "yahoo: (United States)" or similar
+      if (cellStr.includes(':') && (cellStr.includes('(') || cellStr.length > 3)) {
+        // Extract the part before the colon and clean it up
+        const keyword = cellStr.split(':')[0].trim();
+        if (keyword.length > 0 && !keyword.toLowerCase().includes('week') && 
+            !keyword.toLowerCase().includes('month') && !keyword.toLowerCase().includes('date')) {
+          return keyword;
+        }
+      }
+      // Look for cells that might contain the search term
+      if (cellStr.length > 2 && cellStr.length < 50 && 
+          !cellStr.toLowerCase().includes('week') && 
+          !cellStr.toLowerCase().includes('month') && 
+          !cellStr.toLowerCase().includes('date') &&
+          !cellStr.includes('%') && isNaN(Number(cellStr))) {
+        return cellStr.replace(/[()]/g, '').trim();
+      }
+    }
+  }
+  
+  // Fallback to filename
+  return file.name.replace('.csv', '').replace(/[_-]/g, ' ');
+};
+
 export const analyzeSeasonality = (data: TrendsDataPoint[], keyword: string): AnalysisResult => {
   // Monthly analysis
   const monthlyGroups = data.reduce((acc, point) => {

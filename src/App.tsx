@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Header } from './components/Header';
 import { FileUpload } from './components/FileUpload';
+import { QuarterlySeasonalityChart } from './components/charts/QuarterlySeasonalityChart';
 import { MonthlyChart } from './components/charts/MonthlyChart';
 import { QuarterlyChart } from './components/charts/QuarterlyChart';
 import { YearlyChart } from './components/charts/YearlyChart';
@@ -111,11 +112,11 @@ function App() {
                     <ul className="space-y-2 text-gray-600">
                       <li className="flex items-start space-x-2">
                         <span className="text-success-500 mt-1">•</span>
-                        <span>Clear monthly seasonality patterns</span>
+                        <span>Clear quarterly seasonality patterns</span>
                       </li>
                       <li className="flex items-start space-x-2">
                         <span className="text-success-500 mt-1">•</span>
-                        <span>Quarterly distribution analysis</span>
+                        <span>Monthly seasonality analysis</span>
                       </li>
                       <li className="flex items-start space-x-2">
                         <span className="text-success-500 mt-1">•</span>
@@ -163,6 +164,12 @@ function App() {
 
             {/* Insights Panel */}
             <InsightsPanel analysis={analysis} />
+
+            {/* Quarterly Seasonality Chart - Full Width */}
+            <QuarterlySeasonalityChart 
+              data={analysis.seasonality.quarterly} 
+              keyword={analysis.keyword} 
+            />
 
             {/* Charts Grid */}
             <div className="grid lg:grid-cols-2 gap-8">
