@@ -8,7 +8,7 @@ interface InsightsPanelProps {
 }
 
 export const InsightsPanel: React.FC<InsightsPanelProps> = ({ analysis }) => {
-  const { keyword, totalDataPoints, dateRange, insights, seasonality } = analysis;
+  const { keyword, totalDataPoints, dateRange, seasonality } = analysis;
 
   const peakMonth = seasonality.monthly.reduce((max, month) => 
     month.averageValue > max.averageValue ? month : max
@@ -22,7 +22,7 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ analysis }) => {
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <div className="flex items-center space-x-2 mb-6">
         <Lightbulb className="h-6 w-6 text-warning-500" />
-        <h3 className="text-xl font-bold text-gray-900">Key Insights</h3>
+        <h3 className="text-xl font-bold text-gray-900">Analysis Summary</h3>
       </div>
 
       {/* Summary Stats */}
@@ -56,7 +56,7 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ analysis }) => {
       </div>
 
       {/* Date Range */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+      <div className="p-4 bg-gray-50 rounded-lg">
         <h4 className="font-semibold text-gray-900 mb-2">Analysis Period</h4>
         <p className="text-gray-700">
           <span className="font-medium">From:</span> {format(parseISO(dateRange.start), 'MMMM d, yyyy')}
@@ -66,42 +66,6 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({ analysis }) => {
         <p className="text-sm text-gray-600 mt-1">
           Analyzing search trends for "{keyword}" over {Math.round((new Date(dateRange.end).getTime() - new Date(dateRange.start).getTime()) / (1000 * 60 * 60 * 24 * 365.25))} years
         </p>
-      </div>
-
-      {/* Insights List */}
-      <div className="space-y-4">
-        <h4 className="font-semibold text-gray-900">Seasonal Insights</h4>
-        {insights.map((insight, index) => (
-          <div key={index} className="flex items-start space-x-3 p-4 bg-blue-50 rounded-lg">
-            <div className="flex-shrink-0 w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center mt-0.5">
-              <span className="text-xs font-bold text-primary-700">{index + 1}</span>
-            </div>
-            <p className="text-gray-800 leading-relaxed">{insight}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Actionable Recommendations */}
-      <div className="mt-6 p-4 bg-gradient-to-r from-primary-50 to-success-50 rounded-lg border border-primary-100">
-        <h4 className="font-semibold text-gray-900 mb-3">💡 Marketing Recommendations</h4>
-        <ul className="space-y-2 text-sm text-gray-700">
-          <li className="flex items-start space-x-2">
-            <span className="text-primary-600">•</span>
-            <span>Plan your marketing campaigns around <strong>{peakMonth.month}</strong> for maximum impact</span>
-          </li>
-          <li className="flex items-start space-x-2">
-            <span className="text-primary-600">•</span>
-            <span>Allocate higher budget during <strong>{peakQuarter.quarter}</strong> when search interest peaks</span>
-          </li>
-          <li className="flex items-start space-x-2">
-            <span className="text-primary-600">•</span>
-            <span>Use off-peak periods for content creation and preparation</span>
-          </li>
-          <li className="flex items-start space-x-2">
-            <span className="text-primary-600">•</span>
-            <span>Consider seasonal promotions aligned with search patterns</span>
-          </li>
-        </ul>
       </div>
     </div>
   );

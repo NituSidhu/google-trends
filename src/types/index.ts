@@ -44,5 +44,4 @@ export interface AnalysisResult {
   };
   seasonality: SeasonalityData;
   insights: string[];
-  hasAIInsights?: boolean;
 }

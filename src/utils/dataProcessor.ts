@@ -309,9 +309,6 @@ export const analyzeSeasonality = (data: TrendsDataPoint[], keyword: string, cou
     }
   });
 
-  // Generate default business insights (will be replaced by AI if enabled)
-  const insights = generateBusinessInsights(monthlyData, quarterlyData, yearlyData);
-
   return {
     keyword: `${keyword}${country !== 'Unknown' ? ` in ${country}` : ''}`,
     totalDataPoints: data.length,
@@ -324,74 +321,6 @@ export const analyzeSeasonality = (data: TrendsDataPoint[], keyword: string, cou
       quarterly: quarterlyData.sort((a, b) => a.quarterNumber - b.quarterNumber),
       yearly: yearlyData
     },
-    insights,
-    hasAIInsights: false
+    insights: []
   };
-};
-
-const generateBusinessInsights = (monthly: MonthlyData[], quarterly: QuarterlyData[], yearly: YearlyData[]): string[] => {
-  const insights: string[] = [];
-
-  // Peak quarter business insight
-  const peakQuarter = quarterly.reduce((max, quarter) => 
-    quarter.averageValue > max.averageValue ? quarter : max
-  );
-  
-  const quarterBusinessContext = {
-    'Q1': 'New Year planning and fresh start initiatives drive search behavior',
-    'Q2': 'Spring growth and mid-year planning activities peak during this period',
-    'Q3': 'Summer activities and fall preparation create increased demand',
-    'Q4': 'Holiday shopping and year-end business activities dominate search patterns'
-  };
-
-  insights.push(`${peakQuarter.quarter} dominates with ${peakQuarter.percentage}% of searches. ${quarterBusinessContext[peakQuarter.quarter as keyof typeof quarterBusinessContext]}.`);
-
-  // Peak month insight with business context
-  const peakMonth = monthly.reduce((max, month) => 
-    month.averageValue > max.averageValue ? month : max
-  );
-  insights.push(`Peak search activity occurs in ${peakMonth.month} (${peakMonth.averageValue}% interest) - ideal for maximum marketing investment.`);
-
-  // Seasonal variation business impact
-  const lowMonth = monthly.reduce((min, month) => 
-    month.averageValue < min.averageValue ? month : min
-  );
-  const seasonalVariation = (peakMonth.averageValue - lowMonth.averageValue) / lowMonth.averageValue * 100;
-  
-  if (seasonalVariation > 50) {
-    insights.push(`High seasonality (${Math.round(seasonalVariation)}% variation) requires significant budget reallocation and inventory planning.`);
-  } else if (seasonalVariation > 25) {
-    insights.push(`Moderate seasonality (${Math.round(seasonalVariation)}% variation) allows for predictable quarterly budget adjustments.`);
-  } else {
-    insights.push(`Low seasonality (${Math.round(seasonalVariation)}% variation) enables consistent year-round marketing strategies.`);
-  }
-
-  // Business cycle insight
-  const q4Data = quarterly.find(q => q.quarter === 'Q4');
-  const q1Data = quarterly.find(q => q.quarter === 'Q1');
-  
-  if (q4Data && q1Data) {
-    if (q4Data.averageValue > q1Data.averageValue * 1.2) {
-      insights.push('Strong Q4 performance suggests holiday-driven demand - prioritize Q4 inventory and marketing spend.');
-    } else if (q1Data.averageValue > q4Data.averageValue * 1.2) {
-      insights.push('Q1 surge indicates New Year resolution behavior - capitalize with January campaigns.');
-    }
-  }
-
-  // Yearly trend business insight
-  if (yearly.length > 1) {
-    const recentTrend = yearly.slice(-3); // Last 3 years
-    const upTrends = recentTrend.filter(y => y.trend === 'up').length;
-    const downTrends = recentTrend.filter(y => y.trend === 'down').length;
-    
-    if (upTrends > downTrends) {
-      insights.push('Growing market interest over recent years suggests expanding opportunity and increased competition.');
-    } else if (downTrends > upTrends) {
-      insights.push('Declining search interest may indicate market saturation or shifting consumer behavior - consider pivoting strategies.');
-    } else {
-      insights.push('Stable long-term interest provides predictable demand for consistent business planning.');
-    }
-  }
-
-  return insights;
 };
