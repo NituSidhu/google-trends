@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Upload, FileText, AlertCircle, ExternalLink, MousePointer, Download as DownloadIcon, Search, Calendar, Globe } from 'lucide-react';
+import { Upload, FileText, AlertCircle, ExternalLink, MousePointer, Download as DownloadIcon, Search, Calendar, Globe, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
@@ -9,7 +9,7 @@ interface FileUploadProps {
 export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessing }) => {
   const [dragActive, setDragActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showInstructions, setShowInstructions] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(true); // Show by default
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -58,61 +58,28 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div
-        className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
-          dragActive
-            ? 'border-primary-500 bg-primary-50'
-            : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
-        } ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-      >
-        <input
-          type="file"
-          accept=".csv"
-          onChange={handleChange}
-          disabled={isProcessing}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-        />
-        
-        <div className="space-y-4">
-          <div className="flex justify-center">
-            {isProcessing ? (
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-            ) : (
-              <Upload className="h-12 w-12 text-gray-400" />
-            )}
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {isProcessing ? 'Processing your file...' : 'Upload Google Trends CSV'}
-            </h3>
-            <p className="text-gray-600 mb-4">
-              Drag and drop your CSV file here, or click to browse
-            </p>
-            
-            <button
-              onClick={() => setShowInstructions(!showInstructions)}
-              className="inline-flex items-center space-x-2 text-primary-600 hover:text-primary-700 font-medium text-sm mb-4"
-            >
-              <FileText className="h-4 w-4" />
-              <span>{showInstructions ? 'Hide' : 'Show'} step-by-step instructions</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {showInstructions && (
-        <div className="mt-6 bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
-          <div className="flex items-center space-x-2 mb-6">
+    <div className="w-full max-w-4xl mx-auto space-y-6">
+      {/* Instructions Section - Now shown first and by default */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
             <FileText className="h-6 w-6 text-primary-600" />
-            <h3 className="text-xl font-bold text-gray-900">How to Export Your Google Trends Data</h3>
+            <h3 className="text-xl font-bold text-gray-900">How to Get Your Google Trends CSV File</h3>
           </div>
+          <button
+            onClick={() => setShowInstructions(!showInstructions)}
+            className="flex items-center space-x-1 text-primary-600 hover:text-primary-700 font-medium text-sm"
+          >
+            <span>{showInstructions ? 'Hide' : 'Show'} Instructions</span>
+            {showInstructions ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </button>
+        </div>
 
+        {showInstructions && (
           <div className="space-y-6">
             {/* Step 1 */}
             <div className="flex items-start space-x-4">
@@ -230,10 +197,10 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-900 mb-2 flex items-center space-x-2">
                   <Upload className="h-4 w-4 text-success-600" />
-                  <span>Upload Here</span>
+                  <span>Upload to This Tool</span>
                 </h4>
                 <p className="text-gray-700 mb-3">
-                  Once downloaded, drag and drop the CSV file into the upload area above, or click to browse and select it
+                  Once downloaded, use the upload area below to drag and drop the CSV file, or click to browse and select it
                 </p>
                 <div className="bg-primary-50 p-3 rounded-lg border border-primary-200">
                   <p className="text-sm text-primary-800">
@@ -242,35 +209,75 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Troubleshooting */}
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg border">
-            <h4 className="font-semibold text-gray-900 mb-3">Troubleshooting Tips</h4>
-            <ul className="space-y-2 text-sm text-gray-700">
-              <li className="flex items-start space-x-2">
-                <span className="text-error-500 mt-1">•</span>
-                <span><strong>Can't find download button?</strong> Make sure you're looking at the main "Interest over time" graph, not other sections</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="text-error-500 mt-1">•</span>
-                <span><strong>File won't upload?</strong> Ensure the file ends with .csv and is from Google Trends (not manually created)</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="text-error-500 mt-1">•</span>
-                <span><strong>No seasonal patterns?</strong> Try using a longer time range (2+ years) for better seasonal analysis</span>
-              </li>
-              <li className="flex items-start space-x-2">
-                <span className="text-error-500 mt-1">•</span>
-                <span><strong>Error processing file?</strong> The CSV might be corrupted - try downloading it again from Google Trends</span>
-              </li>
-            </ul>
+            {/* Troubleshooting */}
+            <div className="mt-8 p-4 bg-gray-50 rounded-lg border">
+              <h4 className="font-semibold text-gray-900 mb-3">Troubleshooting Tips</h4>
+              <ul className="space-y-2 text-sm text-gray-700">
+                <li className="flex items-start space-x-2">
+                  <span className="text-error-500 mt-1">•</span>
+                  <span><strong>Can't find download button?</strong> Make sure you're looking at the main "Interest over time" graph, not other sections</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <span className="text-error-500 mt-1">•</span>
+                  <span><strong>File won't upload?</strong> Ensure the file ends with .csv and is from Google Trends (not manually created)</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <span className="text-error-500 mt-1">•</span>
+                  <span><strong>No seasonal patterns?</strong> Try using a longer time range (2+ years) for better seasonal analysis</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <span className="text-error-500 mt-1">•</span>
+                  <span><strong>Error processing file?</strong> The CSV might be corrupted - try downloading it again from Google Trends</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Upload Area */}
+      <div
+        className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
+          dragActive
+            ? 'border-primary-500 bg-primary-50'
+            : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
+        } ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+      >
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleChange}
+          disabled={isProcessing}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        />
+        
+        <div className="space-y-4">
+          <div className="flex justify-center">
+            {isProcessing ? (
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            ) : (
+              <Upload className="h-12 w-12 text-gray-400" />
+            )}
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {isProcessing ? 'Processing your file...' : 'Upload Your Google Trends CSV File'}
+            </h3>
+            <p className="text-gray-600">
+              Drag and drop your CSV file here, or click to browse
+            </p>
           </div>
         </div>
-      )}
+      </div>
 
       {error && (
-        <div className="mt-4 p-4 bg-error-50 border border-error-200 rounded-lg">
+        <div className="p-4 bg-error-50 border border-error-200 rounded-lg">
           <div className="flex items-center space-x-2">
             <AlertCircle className="h-5 w-5 text-error-600" />
             <p className="text-error-800 font-medium">{error}</p>
