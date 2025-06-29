@@ -59,6 +59,14 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
+      {/* Main Upload Heading */}
+      <div className="text-center">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Upload Your Google Trends File</h2>
+        <p className="text-gray-600 text-lg">
+          Get detailed seasonal insights from your Google Trends data
+        </p>
+      </div>
+
       {/* Instructions Section - Now shown first and by default */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
@@ -267,7 +275,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
           
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {isProcessing ? 'Processing your file...' : 'Upload Your Google Trends CSV File'}
+              {isProcessing ? 'Processing your file...' : 'Drop Your CSV File Here'}
             </h3>
             <p className="text-gray-600">
               Drag and drop your CSV file here, or click to browse
