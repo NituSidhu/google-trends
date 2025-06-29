@@ -44,6 +44,11 @@ export const YearlyChart: React.FC<YearlyChartProps> = ({ data, keyword }) => {
     return null;
   };
 
+  // Custom Y-axis tick formatter to show whole numbers
+  const formatYAxisTick = (value: number) => {
+    return `${Math.round(value)}%`;
+  };
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <div className="mb-6">
@@ -69,6 +74,7 @@ export const YearlyChart: React.FC<YearlyChartProps> = ({ data, keyword }) => {
               tickLine={false}
               axisLine={false}
               domain={[yAxisMin, yAxisMax]}
+              tickFormatter={formatYAxisTick}
               label={{ value: 'Average Interest (%)', angle: -90, position: 'insideLeft' }}
             />
             <Tooltip content={<CustomTooltip />} />

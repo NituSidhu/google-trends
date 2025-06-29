@@ -35,6 +35,11 @@ export const QuarterlySeasonalityChart: React.FC<QuarterlySeasonalityChartProps>
     return null;
   };
 
+  // Custom Y-axis tick formatter to show whole numbers
+  const formatYAxisTick = (value: number) => {
+    return `${Math.round(value)}%`;
+  };
+
   const peakQuarter = data.reduce((max, quarter) => 
     quarter.averageValue > max.averageValue ? quarter : max
   );
@@ -128,6 +133,7 @@ export const QuarterlySeasonalityChart: React.FC<QuarterlySeasonalityChartProps>
               tickLine={false}
               axisLine={false}
               domain={[yAxisMin, yAxisMax]}
+              tickFormatter={formatYAxisTick}
               label={{ value: 'Average Interest (%)', angle: -90, position: 'insideLeft' }}
             />
             <Tooltip content={<CustomTooltip />} />
