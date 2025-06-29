@@ -67,7 +67,56 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
         </p>
       </div>
 
-      {/* Instructions Section - Now shown first and by default */}
+      {/* Upload Area - Now appears first */}
+      <div
+        className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
+          dragActive
+            ? 'border-primary-500 bg-primary-50'
+            : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
+        } ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+      >
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleChange}
+          disabled={isProcessing}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        />
+        
+        <div className="space-y-4">
+          <div className="flex justify-center">
+            {isProcessing ? (
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            ) : (
+              <Upload className="h-12 w-12 text-gray-400" />
+            )}
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              {isProcessing ? 'Processing your file...' : 'Drop Your CSV File Here'}
+            </h3>
+            <p className="text-gray-600">
+              Drag and drop your CSV file here, or click to browse
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {error && (
+        <div className="p-4 bg-error-50 border border-error-200 rounded-lg">
+          <div className="flex items-center space-x-2">
+            <AlertCircle className="h-5 w-5 text-error-600" />
+            <p className="text-error-800 font-medium">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Instructions Section - Now appears below upload area */}
       <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-2">
@@ -208,7 +257,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
                   <span>Upload to This Tool</span>
                 </h4>
                 <p className="text-gray-700 mb-3">
-                  Once downloaded, use the upload area below to drag and drop the CSV file, or click to browse and select it
+                  Once downloaded, use the upload area above to drag and drop the CSV file, or click to browse and select it
                 </p>
                 <div className="bg-primary-50 p-3 rounded-lg border border-primary-200">
                   <p className="text-sm text-primary-800">
@@ -243,55 +292,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isProcessi
           </div>
         )}
       </div>
-
-      {/* Upload Area */}
-      <div
-        className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
-          dragActive
-            ? 'border-primary-500 bg-primary-50'
-            : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
-        } ${isProcessing ? 'opacity-50 pointer-events-none' : ''}`}
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-      >
-        <input
-          type="file"
-          accept=".csv"
-          onChange={handleChange}
-          disabled={isProcessing}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-        />
-        
-        <div className="space-y-4">
-          <div className="flex justify-center">
-            {isProcessing ? (
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-            ) : (
-              <Upload className="h-12 w-12 text-gray-400" />
-            )}
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {isProcessing ? 'Processing your file...' : 'Drop Your CSV File Here'}
-            </h3>
-            <p className="text-gray-600">
-              Drag and drop your CSV file here, or click to browse
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {error && (
-        <div className="p-4 bg-error-50 border border-error-200 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <AlertCircle className="h-5 w-5 text-error-600" />
-            <p className="text-error-800 font-medium">{error}</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
