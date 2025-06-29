@@ -20,8 +20,8 @@ function App() {
     setError(null);
     
     try {
-      const { data, keyword } = await parseCSVFile(file);
-      const result = analyzeSeasonality(data, keyword);
+      const { data, keyword, country } = await parseCSVFile(file);
+      const result = analyzeSeasonality(data, keyword, country);
       setAnalysis(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while processing the file');

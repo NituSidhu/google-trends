@@ -9,7 +9,7 @@ const MONTH_NAMES = [
 
 const QUARTER_NAMES = ['Q1', 'Q2', 'Q3', 'Q4'];
 
-export const parseCSVFile = (file: File): Promise<{ data: TrendsDataPoint[], keyword: string }> => {
+export const parseCSVFile = (file: File): Promise<{ data: TrendsDataPoint[], keyword: string, country: string }> => {
   return new Promise((resolve, reject) => {
     Papa.parse(file, {
       header: false, // Parse without assuming header structure
@@ -22,8 +22,8 @@ export const parseCSVFile = (file: File): Promise<{ data: TrendsDataPoint[], key
             throw new Error('CSV file is empty');
           }
 
-          // Extract keyword from CSV content
-          const keyword = extractKeywordFromFile(file, rows);
+          // Extract keyword and country from CSV content
+          const { keyword, country } = extractKeywordAndCountryFromFile(file, rows);
 
           // Find the header row by looking for date-related keywords
           let headerRowIndex = -1;
@@ -146,7 +146,8 @@ export const parseCSVFile = (file: File): Promise<{ data: TrendsDataPoint[], key
 
           resolve({ 
             data: processedData.sort((a, b) => a.date.localeCompare(b.date)),
-            keyword
+            keyword,
+            country
           });
         } catch (error) {
           reject(error);
@@ -159,38 +160,59 @@ export const parseCSVFile = (file: File): Promise<{ data: TrendsDataPoint[], key
   });
 };
 
-// Extract keyword from CSV file content or filename
-const extractKeywordFromFile = (file: File, rows: string[][]): string => {
+// Extract keyword and country from CSV file content or filename
+const extractKeywordAndCountryFromFile = (file: File, rows: string[][]): { keyword: string, country: string } => {
+  let keyword = '';
+  let country = '';
+  
   // First, try to extract from CSV content (look for keyword in early rows)
   for (let i = 0; i < Math.min(5, rows.length); i++) {
     const row = rows[i];
     for (const cell of row) {
       const cellStr = cell.trim();
       // Look for patterns like "yahoo: (United States)" or similar
-      if (cellStr.includes(':') && (cellStr.includes('(') || cellStr.length > 3)) {
-        // Extract the part before the colon and clean it up
-        const keyword = cellStr.split(':')[0].trim();
-        if (keyword.length > 0 && !keyword.toLowerCase().includes('week') && 
-            !keyword.toLowerCase().includes('month') && !keyword.toLowerCase().includes('date')) {
-          return keyword;
+      if (cellStr.includes(':') && cellStr.includes('(') && cellStr.includes(')')) {
+        const parts = cellStr.split(':');
+        if (parts.length >= 2) {
+          keyword = parts[0].trim();
+          // Extract country from parentheses
+          const countryMatch = cellStr.match(/\(([^)]+)\)/);
+          if (countryMatch) {
+            country = countryMatch[1].trim();
+          }
+          if (keyword.length > 0 && !keyword.toLowerCase().includes('week') && 
+              !keyword.toLowerCase().includes('month') && !keyword.toLowerCase().includes('date')) {
+            return { keyword, country };
+          }
         }
       }
-      // Look for cells that might contain the search term
-      if (cellStr.length > 2 && cellStr.length < 50 && 
-          !cellStr.toLowerCase().includes('week') && 
-          !cellStr.toLowerCase().includes('month') && 
-          !cellStr.toLowerCase().includes('date') &&
-          !cellStr.includes('%') && isNaN(Number(cellStr))) {
-        return cellStr.replace(/[()]/g, '').trim();
+      // Look for cells that might contain the search term with country info
+      if (cellStr.includes('(') && cellStr.includes(')') && cellStr.length > 5 && cellStr.length < 100) {
+        const beforeParen = cellStr.split('(')[0].trim();
+        const countryMatch = cellStr.match(/\(([^)]+)\)/);
+        if (beforeParen.length > 0 && countryMatch && 
+            !beforeParen.toLowerCase().includes('week') && 
+            !beforeParen.toLowerCase().includes('month') && 
+            !beforeParen.toLowerCase().includes('date') &&
+            !beforeParen.includes('%') && isNaN(Number(beforeParen))) {
+          return { 
+            keyword: beforeParen, 
+            country: countryMatch[1].trim() 
+          };
+        }
       }
     }
   }
   
   // Fallback to filename
-  return file.name.replace('.csv', '').replace(/[_-]/g, ' ');
+  const filenameKeyword = file.name.replace('.csv', '').replace(/[_-]/g, ' ');
+  return { 
+    keyword: keyword || filenameKeyword, 
+    country: country || 'Unknown' 
+  };
 };
 
-export const analyzeSeasonality = (data: TrendsDataPoint[], keyword: string): AnalysisResult => {
+export const analyzeSeasonality = (data: TrendsDataPoint[], keyword: string, country: string): AnalysisResult => {
   // Monthly analysis
   const monthlyGroups = data.reduce((acc, point) => {
     if (!acc[point.month]) {
@@ -291,7 +313,7 @@ export const analyzeSeasonality = (data: TrendsDataPoint[], keyword: string): An
   const insights = generateBusinessInsights(monthlyData, quarterlyData, yearlyData);
 
   return {
-    keyword,
+    keyword: `${keyword}${country !== 'Unknown' ? ` in ${country}` : ''}`,
     totalDataPoints: data.length,
     dateRange: {
       start: data[0].date,
