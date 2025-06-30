@@ -1,0 +1,22 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/tools/google-trends-seasonality/*"
+  to = "/tools/google-trends-seasonality/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/tools/google-trends-seasonality"
+  to = "/tools/google-trends-seasonality/"
+  status = 301
+
+[context.production]
+  command = "npm run build"
+
+[context.deploy-preview]
+  command = "npm run build"
