@@ -7,7 +7,7 @@ import { YearlyChart } from './components/charts/YearlyChart';
 import { InsightsPanel } from './components/InsightsPanel';
 import { parseCSVFile, analyzeSeasonality } from './utils/dataProcessor';
 import { AnalysisResult } from './types';
-import { AlertCircle, Download, RefreshCw } from 'lucide-react';
+import { AlertCircle, Download, RefreshCw, Mail, ExternalLink } from 'lucide-react';
 
 function App() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
@@ -129,6 +129,29 @@ function App() {
                 </div>
               </div>
             </div>
+
+            {/* Contact Section */}
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-primary-50 border border-primary-200 rounded-xl p-8 text-center">
+                <div className="flex justify-center mb-4">
+                  <Mail className="h-8 w-8 text-primary-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Have Questions?</h3>
+                <p className="text-gray-700 mb-4">
+                  Need help with your analysis or have suggestions for improvements?
+                </p>
+                <a
+                  href="mailto:yaguneetsidhu@gmail.com"
+                  className="inline-flex items-center space-x-2 bg-primary-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-700 transition-colors"
+                >
+                  <Mail className="h-4 w-4" />
+                  <span>Contact Me</span>
+                </a>
+                <p className="text-sm text-gray-600 mt-3">
+                  yaguneetsidhu@gmail.com
+                </p>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="space-y-8">
@@ -184,6 +207,23 @@ function App() {
                 keyword={analysis.keyword} 
               />
             </div>
+
+            {/* Contact Section for Results Page */}
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-primary-50 border border-primary-200 rounded-xl p-6 text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">Questions About Your Analysis?</h3>
+                <p className="text-gray-700 mb-3">
+                  Need help interpreting your results or want to discuss your findings?
+                </p>
+                <a
+                  href="mailto:yaguneetsidhu@gmail.com"
+                  className="inline-flex items-center space-x-2 bg-primary-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-primary-700 transition-colors text-sm"
+                >
+                  <Mail className="h-4 w-4" />
+                  <span>Get in Touch</span>
+                </a>
+              </div>
+            </div>
           </div>
         )}
       </main>
@@ -191,11 +231,29 @@ function App() {
       {/* Footer */}
       <footer className="bg-gray-800 text-gray-300 py-8 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
+          <div className="text-center space-y-4">
             <p className="text-sm">
               Built to help marketers and analysts discover hidden seasonal patterns in Google Trends data.
             </p>
-            <p className="text-xs mt-2 text-gray-400">
+            <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-6">
+              <a
+                href="mailto:yaguneetsidhu@gmail.com"
+                className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+              >
+                <Mail className="h-4 w-4" />
+                <span>yaguneetsidhu@gmail.com</span>
+              </a>
+              <a
+                href="https://nitusidhu.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-2 text-gray-300 hover:text-white transition-colors"
+              >
+                <ExternalLink className="h-4 w-4" />
+                <span>Visit nitusidhu.com</span>
+              </a>
+            </div>
+            <p className="text-xs text-gray-400">
               Upload your Google Trends CSV files to get started with advanced seasonality analysis.
             </p>
           </div>
