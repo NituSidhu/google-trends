@@ -17,7 +17,7 @@ export const QuarterlySeasonalityChart: React.FC<QuarterlySeasonalityChartProps>
   const yAxisMin = Math.max(0, minValue - padding);
   const yAxisMax = maxValue + padding;
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, _label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (

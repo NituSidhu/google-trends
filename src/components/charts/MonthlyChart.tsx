@@ -86,7 +86,7 @@ export const MonthlyChart: React.FC<MonthlyChartProps> = ({ data, keyword }) => 
       </div>
 
       <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-        {data.slice(0, 4).map((month, index) => (
+        {data.slice(0, 4).map((month, _index) => (
           <div key={month.month} className="text-center p-3 bg-gray-50 rounded-lg">
             <p className="text-sm font-medium text-gray-900">{month.month}</p>
             <p className="text-lg font-bold text-primary-600">{month.averageValue}%</p>

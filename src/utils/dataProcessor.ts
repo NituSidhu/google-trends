@@ -1,6 +1,6 @@
 import Papa from 'papaparse';
 import { format, parse, getMonth, getQuarter, getYear } from 'date-fns';
-import { TrendsDataPoint, SeasonalityData, AnalysisResult, MonthlyData, QuarterlyData, YearlyData } from '../types';
+import { TrendsDataPoint, AnalysisResult, MonthlyData, QuarterlyData, YearlyData } from '../types';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
